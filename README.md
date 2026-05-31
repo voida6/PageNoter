@@ -15,9 +15,14 @@ A small Chrome extension that lets you save personal notes attached to specific 
 3. Click **Load unpacked** and select this `PageNoter` folder.
 4. Pin the extension and click its icon on any page to start taking notes.
 
+## Icon
+
+The toolbar icon is Google's Material Symbols `sticky_note_2`, recolored to the app blue
+(`#4285f4`). The source vector is `icons/sticky_note_2.svg`; the PNGs in `icons/` are
+rasterized from it at 16/32/48/128 px.
+
 ## Roadmap ideas
 
-- Icons for the toolbar.
 - A side panel or in-page widget instead of just the popup.
 - List/search all saved notes across pages.
 - Export / import and cloud sync.
