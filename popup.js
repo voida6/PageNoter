@@ -69,13 +69,21 @@ async function loadNote() {
   noteEl.value = stored[storageKey] || "";
 }
 
-// Reflect the active scope in the buttons and the placeholder text.
+// Reflect the active scope in the buttons, the URL line, and the placeholder.
 function reflectScope() {
   scopeBtns.forEach((b) => b.classList.toggle("active", b.dataset.scope === currentScope));
+
   let host = "this site";
+  let display = tabUrl;
   try {
-    host = new URL(tabUrl).hostname;
+    const u = new URL(tabUrl);
+    host = u.hostname;
+    // Page scope shows the full URL; site scope shows just the origin.
+    display = currentScope === "site" ? u.origin : tabUrl;
   } catch {}
+
+  urlEl.textContent = display;
+  urlEl.title = display;
   noteEl.placeholder =
     currentScope === "site"
       ? "Write a note for all of " + host + "..."
@@ -106,8 +114,6 @@ async function init() {
   }
 
   tabUrl = tab.url;
-  urlEl.textContent = tab.url;
-  urlEl.title = tab.url;
 
   const stored = await chrome.storage.local.get("scope");
   currentScope = stored.scope === "site" ? "site" : "page";
