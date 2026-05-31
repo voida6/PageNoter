@@ -7,6 +7,7 @@ const clearBtn = document.getElementById("clear");
 const themesEl = document.getElementById("themes");
 const settingsEl = document.getElementById("settings");
 const settingsToggle = document.getElementById("settings-toggle");
+const allNotesBtn = document.getElementById("all-notes");
 const scopeBtns = document.querySelectorAll(".scope-btn");
 
 let tabUrl = null;
@@ -14,18 +15,7 @@ let currentScope = "page"; // "page" or "site"
 let storageKey = null;
 let saveTimer = null;
 
-// Color themes. Each maps to the CSS variables defined in popup.css.
-// The chosen theme is saved globally and applies on every page.
-// Mix of light + dark; pastels tint the surface so they don't read as plain white.
-const THEMES = {
-  blue:     { label: "Blue",        bg: "#fafafa", surface: "#ffffff", text: "#1a1a1a", muted: "#666666", accent: "#4285f4", border: "#d4d4d4" },
-  purple:   { label: "Dark Purple", bg: "#2a2433", surface: "#362f44", text: "#ece8f2", muted: "#a89db8", accent: "#9b87c4", border: "#4a4259" },
-  midnight: { label: "Midnight",    bg: "#1e2433", surface: "#2a3142", text: "#e6ebf5", muted: "#8d9bb5", accent: "#5b9bd5", border: "#3a4458" },
-  teal:     { label: "Dark Teal",   bg: "#16292b", surface: "#1f3a3c", text: "#e0f0f0", muted: "#7fa8aa", accent: "#2bb1b8", border: "#2f5052" },
-  pink:     { label: "Pastel Pink", bg: "#f7dce8", surface: "#fceef4", text: "#5a2a3d", muted: "#b07d92", accent: "#d96a93", border: "#f0c4d6" },
-  mint:     { label: "Pastel Mint", bg: "#d7efe3", surface: "#eaf7f1", text: "#1f3d32", muted: "#5f8a78", accent: "#3fa884", border: "#bfe3d3" },
-};
-const DEFAULT_THEME = "blue";
+// THEMES, DEFAULT_THEME and applyThemeVars() come from theme.js (loaded first).
 
 // Build the storage key for the current tab + scope.
 // - page: the exact URL (ignoring the #hash so anchors share one note).
@@ -121,12 +111,7 @@ async function init() {
 }
 
 function applyTheme(name) {
-  const theme = THEMES[name] || THEMES[DEFAULT_THEME];
-  const root = document.documentElement;
-  for (const [prop, value] of Object.entries(theme)) {
-    if (prop === "label") continue;
-    root.style.setProperty("--" + prop, value);
-  }
+  applyThemeVars(name);
   themesEl.querySelectorAll(".swatch").forEach((s) => {
     s.classList.toggle("selected", s.dataset.theme === name);
   });
@@ -158,6 +143,10 @@ function toggleSettings() {
 }
 
 settingsToggle.addEventListener("click", toggleSettings);
+
+allNotesBtn.addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("notes.html") });
+});
 
 scopeBtns.forEach((b) => {
   b.addEventListener("click", () => setScope(b.dataset.scope));

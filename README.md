@@ -8,6 +8,7 @@ for you next time you're there. Everything is stored locally in your browser.
 
 - Notes attached to a specific page or to a whole website.
 - Auto-save as you type.
+- A page to browse, search, and delete all your saved notes.
 - A settings panel with several color themes.
 
 ## Install (developer mode)
@@ -25,6 +26,5 @@ for you next time you're there. Everything is stored locally in your browser.
 
 ## Roadmap
 
-- A page to browse and search all saved notes.
 - Export / import and optional sync.
 - Richer note editing.
