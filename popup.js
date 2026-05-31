@@ -4,6 +4,7 @@ const noteEl = document.getElementById("note");
 const statusEl = document.getElementById("status");
 const urlEl = document.getElementById("page-url");
 const clearBtn = document.getElementById("clear");
+const pinBtn = document.getElementById("pin");
 const themesEl = document.getElementById("themes");
 const settingsEl = document.getElementById("settings");
 const settingsToggle = document.getElementById("settings-toggle");
@@ -90,7 +91,47 @@ async function setScope(scope) {
   currentScope = scope;
   reflectScope();
   await loadNote();
+  updatePinState();
   noteEl.focus();
+}
+
+// A note can only be pinned on normal web pages (content scripts can't run on
+// chrome://, edge://, the web store, etc.).
+function isStickablePage() {
+  return /^https?:\/\//i.test(tabUrl || "");
+}
+
+// Reflect whether the current scope's note is pinned as a sticky note.
+async function updatePinState() {
+  if (!isStickablePage()) {
+    pinBtn.disabled = true;
+    pinBtn.classList.remove("active");
+    pinBtn.textContent = "Pin";
+    pinBtn.title = "Sticky notes work only on normal web pages";
+    return;
+  }
+  pinBtn.disabled = false;
+  const { stickies = {} } = await chrome.storage.local.get("stickies");
+  const pinned = !!stickies[storageKey];
+  pinBtn.classList.toggle("active", pinned);
+  pinBtn.textContent = pinned ? "Unpin" : "Pin";
+  pinBtn.title = pinned
+    ? "Remove the sticky note from the page"
+    : "Show this note as a sticky note on the page";
+}
+
+// Toggle the current note's sticky state. The content script reacts to the
+// "stickies" storage change and shows/hides the floating widget.
+async function togglePin() {
+  if (!storageKey || !isStickablePage()) return;
+  const { stickies = {} } = await chrome.storage.local.get("stickies");
+  if (stickies[storageKey]) {
+    delete stickies[storageKey];
+  } else {
+    stickies[storageKey] = true; // default position; content script places it
+  }
+  await chrome.storage.local.set({ stickies });
+  updatePinState();
 }
 
 async function init() {
@@ -107,6 +148,7 @@ async function init() {
 
   reflectScope();
   await loadNote();
+  updatePinState();
   noteEl.focus();
 }
 
@@ -153,6 +195,8 @@ scopeBtns.forEach((b) => {
 });
 
 noteEl.addEventListener("input", scheduleSave);
+
+pinBtn.addEventListener("click", togglePin);
 
 clearBtn.addEventListener("click", () => {
   noteEl.value = "";

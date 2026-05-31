@@ -19,5 +19,12 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "activeTab", "tabs"]
+  "permissions": ["storage", "activeTab", "tabs"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["theme.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

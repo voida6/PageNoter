@@ -7,6 +7,7 @@ for you next time you're there. Everything is stored locally in your browser.
 ## Features
 
 - Notes attached to a specific page or to a whole website.
+- Pin a note as a draggable sticky note that floats on top of the page.
 - Auto-save as you type.
 - A page to browse, search, and delete all your saved notes.
 - A settings panel with several color themes.

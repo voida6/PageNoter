@@ -153,6 +153,22 @@ button:hover {
   border-color: var(--accent);
 }
 
+.footer-actions {
+  display: flex;
+  gap: 6px;
+}
+
+#pin.active {
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Settings panel */
 .settings {
   margin-bottom: 10px;
