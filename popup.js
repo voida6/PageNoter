@@ -98,7 +98,6 @@ async function setScope(scope) {
     save();
   }
   currentScope = scope;
-  chrome.storage.local.set({ scope });
   reflectScope();
   await loadNote();
   noteEl.focus();
@@ -114,9 +113,7 @@ async function init() {
   }
 
   tabUrl = tab.url;
-
-  const stored = await chrome.storage.local.get("scope");
-  currentScope = stored.scope === "site" ? "site" : "page";
+  currentScope = "page"; // always open in page scope
 
   reflectScope();
   await loadNote();
