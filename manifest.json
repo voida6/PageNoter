@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "PageNoter",
+  "version": "0.1.0",
+  "description": "Save personal notes attached to specific web pages.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PageNoter"
+  },
+  "permissions": ["storage", "activeTab", "tabs"]
+}
