@@ -1,4 +1,4 @@
-// PageNoter v0.1 — saves one note per page URL using chrome.storage.local.
+// PageNoter — saves notes (per page or per whole site) using chrome.storage.local.
 
 const noteEl = document.getElementById("note");
 const statusEl = document.getElementById("status");
@@ -7,7 +7,10 @@ const clearBtn = document.getElementById("clear");
 const themesEl = document.getElementById("themes");
 const settingsEl = document.getElementById("settings");
 const settingsToggle = document.getElementById("settings-toggle");
+const scopeBtns = document.querySelectorAll(".scope-btn");
 
+let tabUrl = null;
+let currentScope = "page"; // "page" or "site"
 let storageKey = null;
 let saveTimer = null;
 
@@ -24,13 +27,16 @@ const THEMES = {
 };
 const DEFAULT_THEME = "blue";
 
-// Use the URL without the hash so "#section" anchors share one note per page.
-function keyForUrl(url) {
+// Build the storage key for the current tab + scope.
+// - page: the exact URL (ignoring the #hash so anchors share one note).
+// - site: the whole website, keyed by hostname (any path on that host).
+function keyForScope(url, scope) {
   try {
     const u = new URL(url);
-    return "note:" + u.origin + u.pathname + u.search;
+    if (scope === "site") return "note:site:" + u.hostname;
+    return "note:page:" + u.origin + u.pathname + u.search;
   } catch {
-    return "note:" + url;
+    return "note:" + scope + ":" + url;
   }
 }
 
@@ -56,20 +62,58 @@ function scheduleSave() {
   saveTimer = setTimeout(save, 400);
 }
 
+// Load the note for the current tab + scope into the textarea.
+async function loadNote() {
+  storageKey = keyForScope(tabUrl, currentScope);
+  const stored = await chrome.storage.local.get(storageKey);
+  noteEl.value = stored[storageKey] || "";
+}
+
+// Reflect the active scope in the buttons and the placeholder text.
+function reflectScope() {
+  scopeBtns.forEach((b) => b.classList.toggle("active", b.dataset.scope === currentScope));
+  let host = "this site";
+  try {
+    host = new URL(tabUrl).hostname;
+  } catch {}
+  noteEl.placeholder =
+    currentScope === "site"
+      ? "Write a note for all of " + host + "..."
+      : "Write a note for this page...";
+}
+
+// Switch scope, flushing any pending save to the previous scope first.
+async function setScope(scope) {
+  if (scope === currentScope) return;
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    save();
+  }
+  currentScope = scope;
+  chrome.storage.local.set({ scope });
+  reflectScope();
+  await loadNote();
+  noteEl.focus();
+}
+
 async function init() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab || !tab.url) {
     urlEl.textContent = "No page detected";
     noteEl.disabled = true;
+    scopeBtns.forEach((b) => (b.disabled = true));
     return;
   }
 
+  tabUrl = tab.url;
   urlEl.textContent = tab.url;
   urlEl.title = tab.url;
-  storageKey = keyForUrl(tab.url);
 
-  const stored = await chrome.storage.local.get(storageKey);
-  noteEl.value = stored[storageKey] || "";
+  const stored = await chrome.storage.local.get("scope");
+  currentScope = stored.scope === "site" ? "site" : "page";
+
+  reflectScope();
+  await loadNote();
   noteEl.focus();
 }
 
@@ -111,6 +155,10 @@ function toggleSettings() {
 }
 
 settingsToggle.addEventListener("click", toggleSettings);
+
+scopeBtns.forEach((b) => {
+  b.addEventListener("click", () => setScope(b.dataset.scope));
+});
 
 noteEl.addEventListener("input", scheduleSave);
 
