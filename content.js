@@ -182,7 +182,7 @@ async function addWidget(key, pos) {
   textarea.addEventListener("input", () => {
     clearTimeout(widget.saveTimer);
     widget.saveTimer = setTimeout(() => {
-      chrome.storage.local.set({ [key]: textarea.value });
+      saveNote(key, textarea.value);
     }, 400);
   });
 

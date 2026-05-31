@@ -42,9 +42,7 @@ function showStatus(text) {
 
 function save() {
   if (!storageKey) return;
-  chrome.storage.local.set({ [storageKey]: noteEl.value }, () => {
-    showStatus("Saved");
-  });
+  saveNote(storageKey, noteEl.value).then(() => showStatus("Saved"));
 }
 
 // Debounce saves while the user is typing.

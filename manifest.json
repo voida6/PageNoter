@@ -26,7 +26,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["theme.js", "content.js"],
+      "js": ["theme.js", "store.js", "content.js"],
       "run_at": "document_idle"
     }
   ]
