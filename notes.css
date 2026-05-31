@@ -111,6 +111,15 @@ h1 {
   text-decoration: underline;
 }
 
+.loc-plain {
+  color: var(--muted);
+  cursor: default;
+}
+
+.loc-plain:hover {
+  text-decoration: none;
+}
+
 .del {
   flex-shrink: 0;
   display: inline-flex;

@@ -10,9 +10,15 @@ const SITE_PREFIX = "note:site:";
 
 let notes = []; // { scope, key, location, text }
 
-// Where the location link should point.
-function hrefFor(note) {
-  return note.scope === "site" ? "https://" + note.location : note.location;
+// Work out where a note's location should link to, and whether it's safe to
+// navigate to. Only http(s) URLs are linkable — browsers block edge://,
+// chrome://, file://, etc., so those render as plain text instead.
+function linkInfo(note) {
+  if (note.scope === "site") {
+    const href = "https://" + note.location;
+    return { href, linkable: note.location.includes(".") };
+  }
+  return { href: note.location, linkable: /^https?:\/\//i.test(note.location) };
 }
 
 async function loadNotes() {
@@ -41,13 +47,22 @@ function card(note) {
   badge.className = "badge badge-" + note.scope;
   badge.textContent = note.scope === "site" ? "Site" : "Page";
 
-  const link = document.createElement("a");
-  link.className = "loc";
-  link.href = hrefFor(note);
-  link.target = "_blank";
-  link.rel = "noreferrer";
+  const { href, linkable } = linkInfo(note);
+  let link;
+  if (linkable) {
+    link = document.createElement("a");
+    link.className = "loc";
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.title = href;
+  } else {
+    // Restricted page (edge://, chrome://, file://, ...) — not navigable.
+    link = document.createElement("span");
+    link.className = "loc loc-plain";
+    link.title = note.location;
+  }
   link.textContent = note.location;
-  link.title = link.href;
 
   const del = document.createElement("button");
   del.className = "del";
