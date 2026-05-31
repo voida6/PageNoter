@@ -21,9 +21,40 @@ body {
   color: var(--text);
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 header h1 {
   margin: 0;
   font-size: 16px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--accent);
+  background: var(--surface);
+}
+
+.icon-btn.open svg {
+  transform: rotate(45deg);
+}
+
+.icon-btn svg {
+  transition: transform 0.15s ease;
 }
 
 #page-url {
@@ -84,12 +115,34 @@ button:hover {
   border-color: var(--accent);
 }
 
+/* Settings panel */
+.settings {
+  margin-bottom: 10px;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.settings[hidden] {
+  display: none;
+}
+
+.settings-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 /* Theme picker */
 .theme-row {
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-top: 10px;
 }
 
 .swatch {

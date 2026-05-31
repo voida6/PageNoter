@@ -7,7 +7,8 @@ A small Chrome extension that lets you save personal notes attached to specific 
 - Click the toolbar icon to open a note pad for the current page.
 - Notes auto-save as you type (per URL).
 - "Clear" button to wipe the current page's note.
-- Color themes: Blue, Dark Purple, Cyan, Pastel Pink, Pastel Mint (pick a swatch; saved globally).
+- Settings panel (gear icon) with color themes: Blue, Dark Purple, Midnight, Dark Teal,
+  Pastel Pink, Pastel Mint (pick a swatch; saved globally).
 
 ## Install (developer mode)
 
