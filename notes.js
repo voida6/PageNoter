@@ -8,7 +8,19 @@ const emptyEl = document.getElementById("empty");
 const PAGE_PREFIX = "note:page:";
 const SITE_PREFIX = "note:site:";
 
-let notes = []; // { scope, key, location, text }
+let notes = []; // { scope, key, location, text, updatedAt }
+
+// Human-friendly "time ago" for a timestamp (ms), or "" if unknown.
+function relativeTime(ts) {
+  if (!ts) return "";
+  const diff = Date.now() - ts;
+  const min = 60000, hr = 3600000, day = 86400000;
+  if (diff < min) return "just now";
+  if (diff < hr) return Math.floor(diff / min) + "m ago";
+  if (diff < day) return Math.floor(diff / hr) + "h ago";
+  if (diff < 7 * day) return Math.floor(diff / day) + "d ago";
+  return new Date(ts).toLocaleDateString();
+}
 
 // Work out where a note's location should link to, and whether it's safe to
 // navigate to. Only http(s) URLs are linkable — browsers block edge://,
@@ -23,16 +35,19 @@ function linkInfo(note) {
 
 async function loadNotes() {
   const all = await chrome.storage.local.get(null);
+  const meta = all[NOTE_META_KEY] || {};
   notes = [];
   for (const [key, value] of Object.entries(all)) {
     if (typeof value !== "string" || value.trim() === "") continue;
+    const updatedAt = meta[key] ? meta[key].updatedAt : 0;
     if (key.startsWith(PAGE_PREFIX)) {
-      notes.push({ scope: "page", key, location: key.slice(PAGE_PREFIX.length), text: value });
+      notes.push({ scope: "page", key, location: key.slice(PAGE_PREFIX.length), text: value, updatedAt });
     } else if (key.startsWith(SITE_PREFIX)) {
-      notes.push({ scope: "site", key, location: key.slice(SITE_PREFIX.length), text: value });
+      notes.push({ scope: "site", key, location: key.slice(SITE_PREFIX.length), text: value, updatedAt });
     }
   }
-  notes.sort((a, b) => a.location.localeCompare(b.location));
+  // Most recently edited first; undated (older) notes fall to the bottom.
+  notes.sort((a, b) => b.updatedAt - a.updatedAt || a.location.localeCompare(b.location));
   render();
 }
 
@@ -77,7 +92,12 @@ function card(note) {
     render();
   });
 
-  head.append(badge, link, del);
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent = relativeTime(note.updatedAt);
+  if (note.updatedAt) time.title = new Date(note.updatedAt).toLocaleString();
+
+  head.append(badge, link, time, del);
 
   const text = document.createElement("div");
   text.className = "text";
